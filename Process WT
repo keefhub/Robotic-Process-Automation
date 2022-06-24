@@ -1,0 +1,44 @@
+Process WT is an automation robot configured for the billing team. It is not a very logic-complicated robot, rather it has many conditions. It is challenging to 
+interpret my process flow as it requires some understanding of the company's system.  But I will try my best to document the process flow. In my personal device,
+I have drew out a waterfall flow chart, breaking down each process into modules, making it easier for me to configure the robot. 
+
+The following is my process flow (in words):
+
+--(enter for loop1)--
+e3PS -> Search -> Open + Read excel -> Enter values read -(wait)-> Sales & Cost -(wait x2)-> Internal Cost -(wait x3)-> click "confirm" button -> exit page 
+
+--(enter for loop2)--
+--(conditional loop: 'if-else' to screen "charge code")--
+-> click on charge code -> get amount -> close window -> paste in Sales window -> exit charge code -> next iteration
+(here is the catch, charge code varies. For example, "FRT", "FSC", "XSC", "SSC" and so on.. 
+thus for loop is required to enter into each charge code individually. Since charge code of each values entered above is scanned from the screen, 
+I will need to match it with an excel sheet using "if-else" conditions. However, the company has a total of 300+ charge code but only maximum of 7 will appear 
+in this automation, I will not be scanning an excelsheet to compare. Instead, I will be keying in the charge code individually to match the "if-else" condition) 
+--(end of conditional loop)--
+--(exit for loop2)--
+
+generate invoice -> click "confirm" button -> click "print" button -> enter "shipment" page -> close page -> next iteration
+--(exit for loop1)--
+
+There are considerations that I have to look into, for example,
+-process aborted abruptly due to system timeout error
+-same charge code scanned, program will always choose the first code that appears
+-multiple "confirm" buttons to click on
+
+In my opinion, the consideration that caused the most problem is process abortion due to timeout error. This error is one that cannot be predicted nor solved unless
+changes are made to the system itself. Even though the server is not shared by all the offices worldwide (T.T definitely will be a bigger problem if it is shared),
+server still lags within SG server, despite having less than 100 employees (not all are required to access the server). Hence, I think the problem could lie in
+1. lack of scalability of system
+2. network failed to share workload uniformly
+
+For this error, I have implemented some solutions: 
+1. increase program delay and timeout error 
+-however, this will cause the program to have long execution time
+2. exceptions had been threw in to start a new iteration when program timeout set has been reached. 
+-however, for some instance, it is hard to throw in exceptions. Unless I throw exception in for the whole program, which will result in long execution time.
+
+Same charge code and multiple buttons to click requires slight configuration to programming logic. I altered the program such that it
+scans the screen -> record the count -> extract button coordinate axis -> enter for loop -> execute clicking actions -> exit when count > recorded count
+
+User guide has been created to document the above issues and programming logic. Pictorial examples were thrown in, coupled with simple troubleshooting steps
+were added to aid user(s) whenever system error occur. 
