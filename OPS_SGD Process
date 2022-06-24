@@ -1,0 +1,69 @@
+OPS_SGD is a robot programmed for finance team to automate billing processes. This program has many modules, but I shall just document the part I was tasked to 
+complete. The program's logic is rather complexed yet simple. It is difficult to explain this oxymoron, but you'll see once what I meant by this later. 
+We have programmed the excelsheet to count the unique cheque count to tally the number of times that particular cheque number appeared in the excelsheet. 
+
+This robot has a very challenging logic to follow. I had a hard time figuring out the iteration count, excel count and the cheque count. With all these 3 counts
+counting concurrently, or close to concurrent counting, it is challenging to tally it. My task was to complete "Excel to GP". It requires checking of check boxes and
+posting it so it can be knocked off. Simply ain't it? Well, this is simply the surface of the program! 
+
+Open Excel + read excel row count -> compare cheque count 
+--(conditional loop "if-else")--
+if cheque count = 1 then,
+click the check box associated with the cheque number
+
+if cheque count > 1 then,
+--(for loop)-- to loop through the checking of multiple check boxes
+
+Programming logic wise, it is as simple as shown. But when the arrays are involved, it is very messy.. Read on!
+
+Given an example as follows:
+Excel row count starts from 2, as first row is used to input header.
+Excel column (marks the row count of the last value) = 6
+Thus it gives off the for loop to enclose the program,
+for(excel row count = 2 to excel column){ ... }
+
+                                   0  1  2  3  4 --> actual pointers such that, Cheque count extracted[0] = 1
+Cheque count extracted from excel [1, 2, 2, 1, 1] //as mentioned, this is the unique cheque count of cheque number appeared.
+It is important to note that     | 2| 3| 4| 5| 6|   is the row count of the cheque count. Can see such that Excel row count = 2 points to 1 and so on.. 
+Challenge here is the count should read | 2| 3| 5| 6|. It has to skip "4" because when cheque count > 1, a for loop will be deployed to check both the check boxes.
+
+Initially I configured a comparison between the cheque count, 
+if (chequeCount[rowCount-2] < chequeCount[rowCount-1]) && chequeCount[rowCount-1] > chequeCount[rowCount-2] then,
+runningCount = runningCount + chequeCount - 1
+//chequeCount[rowCount-1] > chequeCount[rowCount-2] reason for this is because there may be a case that chequeCount[rowCount-1] < chequeCount[rowCount-2] and no count 
+should be added
+
+but after rounds of considering and reconfiguring the logic, I finally came out with a configuration:
+if (chequeCount > 1) then, 
+globalCount = globalCount + chequeCount //globalCount initialized as 0
+iteration = globalCount 
+//globalCount will substitute as the iteration for the loop. This count will force the iteration to read its value so it can skip chequeCount that should be skipped.
+
+To be clearer with what was stated above, I will write an example algorithm:
+for (i=1 to last_count){
+  k = 1
+  i = k 
+  chequeCount = Excel.ReadCell(excelBook,"Sheet2","G"&i) //reading the excel's cell by iteration
+  
+  if (chequeCount > 1){
+    k = k + chequeCount 
+    }
+  else
+    k = k + 1
+}   
+
+Since k is not used as a var in for loop, by using k at line 49 and letting i = k at line 45, I am forcing the row which the excel reads to be equals to k instead of i.
+Since the ith iteration cannot be changed as it increases in step of 1. Even if I let "i = int var", the for loop will overwrite its value and iterate in step of 1.
+For example,
+
+for (i=1 to last_count){
+
+  chequeCount = Excel.ReadCell(excelBook,"Sheet2","G"&i) //reading the excel's cell by iteration
+  
+  if (chequeCount > 1){
+    i = i + chequeCount 
+    }
+  else
+    i = i + 1
+}
+Assume the val of i = 2, and chequeCount = 2, according to line 64, i should now be 4, but due to the for loop, increment of i will result i = 3.   
